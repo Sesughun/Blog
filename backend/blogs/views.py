@@ -33,8 +33,9 @@ def category_detail(request, category_id):
 def create_post(request):
     title = request.POST.get("title")
     content = request.POST.get("content")
-    post = Post.objects.create(title=title, content=content)
-    data = {"id": post.id, "title": post.title, "content": post.content}
+    writer_id = request.POST.get("writer_id")
+    post = Post.objects.create(title=title, content=content, writer_id=writer_id)
+    data = {"id": post.id, "title": post.title, "content": post.content, "writer_id": post.writer_id}
     return JsonResponse(data)
 
 @require_http_methods(["POST"])

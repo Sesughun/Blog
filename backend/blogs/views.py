@@ -28,3 +28,18 @@ def category_detail(request, category_id):
     category = get_object_or_404(Category, id=category_id)
     data = {"id": category.id, "name": category.name}
     return JsonResponse(data)
+
+@require_http_methods(["POST"])
+def create_post(request):
+    title = request.POST.get("title")
+    content = request.POST.get("content")
+    post = Post.objects.create(title=title, content=content)
+    data = {"id": post.id, "title": post.title, "content": post.content}
+    return JsonResponse(data)
+
+@require_http_methods(["POST"])
+def create_category(request):
+    name = request.POST.get("name")
+    category = Category.objects.create(name=name)
+    data = {"id": category.id, "name": category.name}
+    return JsonResponse(data)

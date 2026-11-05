@@ -1,5 +1,5 @@
 from django.db import models
-
+from blogs.models import Category, Post
 # Create your models here.
 class Writer(models.Model):
     first_name = models.CharField(max_length =100)

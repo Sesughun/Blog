@@ -1,29 +1,31 @@
-from django.shortcuts import render
 from django.shortcuts import get_object_or_404
-from blogs.models import Post
-from .models import Writer
-from django.http import JsonResponse
-from django.views.decorators.http import require_http_methods
+from rest_framework import viewsets
+from rest_framework.decorators import action
+from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.response import Response
 
-# Create your views here.
-@require_http_methods(["GET"])
-def writer_post_list(request, writer_id):
-    posts = Post.objects.filter(writer_id=writer_id)
-    data = [{"id": post.id, "title": post.title, "content": post.content} for post in posts]
-    return JsonResponse(data, safe=False)
+from user.models import User
+from user.serializers import WriterSerializer
 
-@require_http_methods(["POST"])
-def create_writer(request):
-    first_name = request.POST.get("first_name")
-    last_name = request.POST.get("last_name")
-    writer = Writer.objects.create(first_name=first_name, last_name=last_name, bio=bio)
-    data = {"id": writer.id, "first_name": writer.first_name, "last_name": writer.last_name, "bio": writer.bio}
-    writer = Writer.objects.create(name=name, bio=bio)
-    data = {"id": writer.id, "name": writer.name, "bio": writer.bio}
-    return JsonResponse(data)
 
-@require_http_methods(["GET"])
-def writer_detail(request, writer_id):
-    writer = get_object_or_404(Writer, id=writer_id)
-    data = {"id": writer.id, "first_name": writer.first_name, "last_name": writer.last_name, "bio": writer.bio}
-    return JsonResponse(data)
+class WriterViewSet(viewsets.ReadOnlyModelViewSet):
+    """Public list/detail of writers (and the admins who write)."""
+
+    serializer_class = WriterSerializer
+    pagination_class = None
+    permission_classes = [AllowAny]
+
+    def get_queryset(self):
+        return User.objects.filter(
+            role__in=[User.Role.WRITER, User.Role.ADMIN], is_active=True
+        ).order_by("first_name")
+
+    @action(detail=True, methods=["post"], permission_classes=[IsAuthenticated])
+    def follow(self, request, pk=None):
+        writer = get_object_or_404(self.get_queryset(), pk=pk)
+        followed = request.user.followed_writers
+        if followed.filter(pk=writer.pk).exists():
+            followed.remove(writer)
+            return Response({"following": False})
+        followed.add(writer)
+        return Response({"following": True})

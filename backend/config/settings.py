@@ -23,9 +23,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-j$a)mx37nl55zv$znu824xswnbbca4^649^&edh95*3*qjh#0t'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    "https://blog-seven-eta-59.vercel.app",
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+]
 
 
 # Application definition
@@ -68,6 +72,7 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'config.urls'
 CORS_ALLOWED_ORIGINS = [
+    "https://blog-seven-eta-59.vercel.app",
     "http://localhost:5173",
     "http://127.0.0.1:5173",
 ]
